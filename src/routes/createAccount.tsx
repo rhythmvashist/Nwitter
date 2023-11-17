@@ -1,5 +1,8 @@
-import React, { useState } from "react";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { useState } from "react";
 import {styled} from "styled-components"
+import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const Wrapper = styled.div`
     height:100%;
@@ -44,45 +47,50 @@ const Error = styled.span`
 `
 
 export default function CreateAccount() {
-const [isLoading,setLoading] = useState(false)
-const [name,setName]=useState("")
-const [email,setEmail]=useState("")
-const [password,setPassword]= useState("")
-const [err,setErr] = useState("")
+    const navigate = useNavigate()
+    const [isLoading,setLoading] = useState(false)
+    const [name,setName]=useState("")
+    const [email,setEmail]=useState("")
+    const [password,setPassword]= useState("")
+    const [err,setErr] = useState("")
 
-const onChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
-    const {target:{name,value},}=e;
-    if(name==="name"){
-        setName(value)
-    }else if (name==="password"){
-        setPassword(value)
+    const onChange = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const {target:{name,value},}=e;
+        if(name==="name"){
+            setName(value)
+        }else if (name==="password"){
+            setPassword(value)
+        }
+        else if(name==="email"){
+            setEmail(value)
+        }
     }
-    else if(name==="email"){
-        setEmail(value)
-    }
-}
 
-const onSubmit = (e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault();
-    try{
-        // do something
-    }catch(e){
-        //set Error
-    }
-    finally{
-        setLoading(false)
-    }
-    // create an account 
+    const onSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+        if (isLoading||name===""||password===""||email==="")return;
+        try{   
+            setLoading(true);
+            const credentials = await createUserWithEmailAndPassword(auth,email,password);
+            console.log(credentials.user)
+            await updateProfile(credentials.user,{displayName:name});
+            navigate("/")
 
-    // set the name of the user profile in firebase
-    
-    // redirect to the home page
-    console.log(name,email,password) 
-}
+        }catch(e){
+            //catch expection
+        }
+        finally{
+            setLoading(false)
+        }
+        // create an account 
+        // set the name of the user profile in firebase
+        // redirect to the home page
+        console.log(name,email,password) 
+    }
 
   return (
     <Wrapper>
-        <Title>Log in 𝕏</Title>
+        <Title>Join 𝕏</Title>
         <Form onSubmit={onSubmit}>
             <Input onChange={onChange} name="name" value={name} placeholder="Name" type="text" required></Input>
             <Input onChange={onChange} name="email" type="email" value={email} placeholder="Email"></Input>

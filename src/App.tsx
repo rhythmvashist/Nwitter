@@ -10,24 +10,25 @@ import { useEffect, useState } from "react"
 import LoadingScreen from "./component/loading-screen"
 import { auth } from "./firebase"
 import {styled} from "styled-components"
+import ProtectedRoute from "./component/protected-route"
 
 const router = createBrowserRouter([{
   path:"/",
-  element:<Layout />,
+  element:<ProtectedRoute><Layout /></ProtectedRoute>,
   children:[{
     path:"",
     element:<Home/>
   },
   {
     path:"profile",
-    element:<Profile/>
+    element: <Profile/>
   },
-],
-},
-{
-    path:'/login',
-    element:<Login/>
+  ],
   },
+  {
+      path:'/login',
+      element:<Login/>
+    },
   {
     path:'/createaccount',
     element:<CreateAccount/>
@@ -51,13 +52,11 @@ const Wrapper = styled.div`
   height:100vh;
   display:flex;
   justify-content:center;
-
 `;
 
+
 function App() {
-
   const [isLoading,setLoading] = useState(true);
-
   const init = async () => {
       // wait for firebase to fetch credentials and verify the user
       await auth.authStateReady();
