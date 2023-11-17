@@ -8,6 +8,8 @@ import { createGlobalStyle } from "styled-components"
 import reset from "styled-reset"
 import { useEffect, useState } from "react"
 import LoadingScreen from "./component/loading-screen"
+import { auth } from "./firebase"
+import {styled} from "styled-components"
 
 const router = createBrowserRouter([{
   path:"/",
@@ -44,12 +46,23 @@ const GlobalStyles = createGlobalStyle`${reset};
   }
 `;
 
+
+const Wrapper = styled.div`
+  height:100vh;
+  display:flex;
+  justify-content:center;
+
+`;
+
 function App() {
 
   const [isLoading,setLoading] = useState(true);
 
   const init = async () => {
       // wait for firebase to fetch credentials and verify the user
+      await auth.authStateReady();
+
+      // Mimic firebase waittime 
       // setTimeout(() => {
       //   setIsLoading(false)
       // }, 2000);
@@ -61,10 +74,10 @@ function App() {
   },[]);
   return (
     <>
-    <GlobalStyles/>
-    {isLoading ? <LoadingScreen/>:
-    <RouterProvider router={router}></RouterProvider>
-}
+      <Wrapper>
+        <GlobalStyles/>
+        {isLoading ? <LoadingScreen/>:<RouterProvider router={router}></RouterProvider>}
+      </Wrapper>
     </>
   )
 }
